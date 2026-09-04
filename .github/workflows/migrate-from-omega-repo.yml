@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout new canonical repository
         uses: actions/checkout@v6
@@ -95,7 +95,7 @@ jobs:
           fi
           test -s docs/downloads/Closure_Ethics_Implementation_Spec_v0.1.pdf
 
-      - name: Remove generated caches and temporary workflow from payload
+      - name: Remove generated caches and generated locale directories from source payload
         shell: bash
         run: |
           rm -rf docs/cs docs/de docs/fr docs/es
@@ -103,11 +103,62 @@ jobs:
           rm -f .github/workflows/migrate-from-omega-repo.yml
           rm -rf .git
 
-      - name: Package validated migration payload
-        uses: actions/upload-artifact@v4
-        with:
-          name: closure-ethics-migration-v01
-          path: .
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 7
+      - name: Publish validated payload to migration-v01 through Contents API
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          TARGET_BRANCH: migration-v01
+        run: |
+          python - <<'PY'
+          import base64
+          import json
+          import os
+          from pathlib import Path
+          from urllib.error import HTTPError
+          from urllib.parse import quote
+          from urllib.request import Request, urlopen
+
+          token = os.environ['GH_TOKEN']
+          repo = os.environ['GH_REPOSITORY']
+          branch = os.environ['TARGET_BRANCH']
+          root = Path('.')
+          headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'closure-ethics-migration',
+          }
+
+          def request(method, url, payload=None):
+              data = None if payload is None else json.dumps(payload).encode('utf-8')
+              req = Request(url, data=data, headers=headers, method=method)
+              try:
+                  with urlopen(req) as resp:
+                      raw = resp.read()
+                      return resp.status, json.loads(raw) if raw else None
+              except HTTPError as exc:
+                  raw = exc.read()
+                  body = json.loads(raw) if raw else None
+                  return exc.code, body
+
+          files = sorted(p for p in root.rglob('*') if p.is_file() and '.github/workflows' not in p.as_posix())
+          print(f'Publishing {len(files)} validated files to {branch}.')
+          for idx, path in enumerate(files, 1):
+              rel = path.as_posix()
+              api = f'https://api.github.com/repos/{repo}/contents/{quote(rel, safe="/")}'
+              status, existing = request('GET', api + f'?ref={quote(branch)}')
+              payload = {
+                  'message': f'Migrate canonical project file: {rel}',
+                  'content': base64.b64encode(path.read_bytes()).decode('ascii'),
+                  'branch': branch,
+              }
+              if status == 200 and isinstance(existing, dict) and existing.get('sha'):
+                  payload['sha'] = existing['sha']
+              elif status != 404:
+                  raise RuntimeError(f'GET {rel} failed: HTTP {status} {existing}')
+              put_status, result = request('PUT', api, payload)
+              if put_status not in (200, 201):
+                  raise RuntimeError(f'PUT {rel} failed: HTTP {put_status} {result}')
+              print(f'[{idx}/{len(files)}] {rel}')
+          PY
