@@ -7,8 +7,6 @@
     ["es", "Español"]
   ];
 
-  // Derive the project root from this script URL so repository renames or
-  // future custom paths do not silently break language navigation again.
   const scriptUrl = document.currentScript?.src;
   const projectRoot = scriptUrl
     ? new URL("../", scriptUrl)
@@ -29,6 +27,26 @@
     page = parts[1] || "index.html";
   } else if (parts.length) {
     page = parts[0];
+  }
+
+  // Keep the comparative-positioning page discoverable from every site page
+  // without duplicating navigation markup across all canonical HTML sources.
+  const comparisonLabels = {
+    en: "Comparison",
+    cs: "Srovnání",
+    de: "Vergleich",
+    fr: "Comparaison",
+    es: "Comparación"
+  };
+  const navLinks = document.querySelector(".site-header .nav-links");
+  if (navLinks && !navLinks.querySelector('a[href="comparison.html"]')) {
+    const link = document.createElement("a");
+    link.href = "comparison.html";
+    link.textContent = comparisonLabels[currentLang] || "Comparison";
+    if (page === "comparison.html") link.setAttribute("aria-current", "page");
+    const implementation = navLinks.querySelector('a[href="implementation.html"]');
+    if (implementation) implementation.insertAdjacentElement("afterend", link);
+    else navLinks.appendChild(link);
   }
 
   const targetFor = (lang) => {
