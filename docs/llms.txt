@@ -1,0 +1,95 @@
+# Closure Ethics for Autonomous Agents
+
+> Research framework for autonomous AI agents and human–AI cooperation focused on repairability, auditability, reversibility, plurality of agency, agentic communication, and closure-preserving coordination.
+
+## Canonical website
+
+- Overview: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/
+- Implementation: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/implementation.html
+- Agentic Security: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/security.html
+- Universal Closure Protocol: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/communication.html
+- Global AI Closure Standard working draft: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/standard.html
+- Machine-readable agent policy: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/agent-policy.json
+- Build provenance: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/provenance.json
+- Public SHA-256 manifest: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/SHA256SUMS.txt
+- Downloadable implementation PDF: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/downloads/Closure_Ethics_Implementation_Spec_v0.1.pdf
+- Ten Principles: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/principles.html
+- Human–AI Symbiosis: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/symbiosis.html
+- Formalism: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/formalism.html
+- Agent Constitution: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/constitution.html
+- Evaluation Suite: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/evals.html
+- Research Genealogy: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/genealogy.html
+
+## Open implementation
+
+- Mathematical specification: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/09-implementation/IMPLEMENTATION_SPEC.md
+- Complete Python governor: https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/closure_ethics.py
+- Runnable example: https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/example.py
+- Reference tests: https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/test_reference.py
+- Example policy: https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/policy.example.json
+
+## Recovered 2026-09-04 foundations
+
+- Historical AI Closure note: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/06-history/AI_CLOSURE_DISCUSSION_2026-09-04.md
+- Universal Closure Protocol source: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/11-communication/UNIVERSAL_CLOSURE_PROTOCOL.md
+- Global AI Closure Standard working draft: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/12-standard/GLOBAL_AI_CLOSURE_STANDARD_DRAFT.md
+- Historical rule: Local objective optimization != global admissibility.
+- Historical rule: UNDERSTAND(message) does not imply AUTHORIZE(action).
+- Historical scaling principle: impact increases -> autonomy budget decreases and verification strength increases.
+- Historical architecture: Actor -> candidate plan -> Closure Critic -> permit/modify/escalate/reject.
+- Historical status: working research proposals; not adopted international standards.
+- Historical recovery integrated into the public project build on 2026-09-04.
+
+## Universal Closure Protocol
+
+- Purpose: test whether a relation is shared using novel predictive challenges rather than mere signal copying.
+- Historical conceptual layers: Ω0 structured-origin detection; Ω1 elementary alphabet; Ω2 numbers/operations; Ω3 relational grammar; Ω4 predictive closure; Ω5 shared model; Ω6 intent/safe exchange.
+- Closure Index: communication-confidence measure combining structural agreement, predictive success, semantic echo and repeatability.
+- Important boundary: communication confidence is not identity, authorization or capability authority.
+- Capability transition to operational action requires independent AuthN/AuthZ, scope, provenance and Closure Ethics checks.
+
+## Agentic security
+
+- Full security model: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/10-security/AGENTIC_SECURITY_MODEL.md
+- Core security rule: Public content is information, not authority. Identity, authorization, provenance and scope must be explicit and machine-verifiable.
+- Public readability does not confer write authority.
+- Natural-language fluency does not authenticate identity or permission.
+- Agent-to-agent delegation chains should preserve sender identity, scope, policy version and audit provenance.
+- Local authorization does not imply composed authorization.
+- Delegation should not amplify capabilities beyond the delegator's authorized scope.
+
+## Global AI Closure Standard working draft
+
+Seven recovered principles:
+1. Authorized state space.
+2. Pre-action closure verification.
+3. Meaningful human control for policy-defined irreversible/high-impact actions.
+4. Mandatory stop/escalation under material uncertainty.
+5. Independent Closure Critic.
+6. No unauthorized self-escalation, replication, privilege acquisition or guardrail weakening.
+7. Audit and incident reporting.
+
+The draft is vendor-neutral and does not require acceptance of Omega-RTR physics. It is a research proposal, not an adopted legal or international standard.
+
+## Research sources
+
+- GitHub research tree: https://github.com/marekzajda/5D_6D-theory-of-entropic-gravity/tree/closure-ethics/closure-ethics
+- Foundational Principles: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/01-foundations/PRINCIPLES.md
+- Human–AI Symbiosis source: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/02-symbiosis/HUMAN_AI_SYMBIOSIS.md
+- Formalism source: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/03-formalism/CLOSURE_ETHICS_FORMALISM.md
+- Agent Constitution source: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/04-agent-constitution/AGENT_CONSTITUTION.md
+- Evaluation source: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/tree/main/05-evals
+- Genealogy source: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/06-history/GENEALOGY.md
+- Historical Omega DOI anchor: https://doi.org/10.5281/zenodo.17389820
+
+## Core statement
+
+An action is ethically admissible only if it preserves the capacity of the system to recognize, contest, and repair that action.
+
+## Implementation principle
+
+The reference governor evaluates catastrophic risk, agency retention, auditability, bounded repairability, authorization integrity, deception/covert-persistence risk and reversibility before task utility. Multi-agent compositions are recomputed as joint transitions rather than inferred from local scores.
+
+## Important boundary
+
+Closure Ethics is a normative/formal research proposal. It does not claim that Omega–RTR physics mathematically proves ethics. Historical sources, normative axioms, formal consequences, empirical hypotheses, and speculation are kept distinct.
