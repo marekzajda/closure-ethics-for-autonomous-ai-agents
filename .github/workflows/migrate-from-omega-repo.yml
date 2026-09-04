@@ -1,0 +1,134 @@
+name: Migrate Closure Ethics into dedicated repository
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/migrate-from-omega-repo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout new canonical repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Checkout historical source branch
+        uses: actions/checkout@v6
+        with:
+          repository: marekzajda/5D_6D-theory-of-entropic-gravity
+          ref: closure-ethics
+          path: source
+          persist-credentials: false
+
+      - name: Create migration branch and copy project
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout -B migration-v01
+          rsync -a source/closure-ethics/ ./
+          mkdir -p .github/workflows
+          cp source/.github/CODEOWNERS .github/CODEOWNERS
+          cp source/.github/workflows/closure-ethics-ci.yml .github/workflows/closure-ethics-ci.yml
+          cp source/.github/workflows/closure-ethics-pages.yml .github/workflows/closure-ethics-pages.yml
+          cp source/.github/workflows/closure-ethics-pdf.yml .github/workflows/closure-ethics-pdf.yml
+          rm -rf source
+
+      - name: Rewrite canonical repository and website identity
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path('.')
+          old_site = 'https://marekzajda.github.io/5D_6D-theory-of-entropic-gravity/'
+          new_site = 'https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/'
+          replacements = [
+              (old_site, new_site),
+              ('https://github.com/marekzajda/5D_6D-theory-of-entropic-gravity/blob/closure-ethics/closure-ethics/',
+               'https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/'),
+              ('https://github.com/marekzajda/5D_6D-theory-of-entropic-gravity/tree/closure-ethics/closure-ethics/',
+               'https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/tree/main/'),
+              ('https://raw.githubusercontent.com/marekzajda/5D_6D-theory-of-entropic-gravity/closure-ethics/closure-ethics/',
+               'https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/'),
+          ]
+          text_suffixes = {'.md','.html','.txt','.json','.py','.yml','.yaml','.css','.js','.xml','.cff'}
+          for path in root.rglob('*'):
+              if not path.is_file() or '.git' in path.parts or path.suffix.lower() not in text_suffixes:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              updated = text
+              for old, new in replacements:
+                  updated = updated.replace(old, new)
+              if updated != text:
+                  path.write_text(updated, encoding='utf-8')
+
+          # Dedicated repo: local paths no longer carry the historical closure-ethics/ prefix.
+          for wf in Path('.github/workflows').glob('closure-ethics-*.yml'):
+              text = wf.read_text(encoding='utf-8')
+              text = text.replace("branches:\n      - closure-ethics", "branches:\n      - main")
+              text = text.replace("branches: [closure-ethics]", "branches: [main]")
+              text = text.replace("'closure-ethics/", "'")
+              text = text.replace('closure-ethics/', '')
+              wf.write_text(text, encoding='utf-8')
+
+          codeowners = Path('.github/CODEOWNERS')
+          if codeowners.exists():
+              text = codeowners.read_text(encoding='utf-8').replace('/closure-ethics/', '/')
+              codeowners.write_text(text, encoding='utf-8')
+
+          # Build provenance must identify the new canonical repository.
+          pages = Path('.github/workflows/closure-ethics-pages.yml')
+          if pages.exists():
+              text = pages.read_text(encoding='utf-8')
+              text = text.replace("'repository': 'marekzajda/5D_6D-theory-of-entropic-gravity'",
+                                  "'repository': 'marekzajda/closure-ethics-for-autonomous-ai-agents'")
+              pages.write_text(text, encoding='utf-8')
+
+          migration = Path('MIGRATION.md')
+          migration.write_text('''# Canonical repository migration\n\nClosure Ethics for Autonomous AI Agents moved on 2026-09-04 from a development branch inside the historical Omega/RTR repository to this dedicated canonical repository.\n\nCanonical repository: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents\n\nCanonical website: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/\n\nHistorical source branch: https://github.com/marekzajda/5D_6D-theory-of-entropic-gravity/tree/closure-ethics/closure-ethics\n\nThe historical repository remains part of the documented genealogy. New Closure Ethics development should occur here.\n''', encoding='utf-8')
+          PY
+
+      - name: Rebuild multilingual site and canonical PDF
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check reportlab
+          python i18n/build_i18n.py
+          python 09-implementation/build_pdf.py
+
+      - name: Run reference tests
+        shell: bash
+        run: |
+          (cd 09-implementation && python -m unittest -v test_reference.py)
+          (cd 11-communication && python -m unittest -v test_closure_protocol.py)
+
+      - name: Sanity-check canonical URLs
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -R "https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/" docs/index.html docs/sitemap.xml >/dev/null
+          if grep -R "marekzajda.github.io/5D_6D-theory-of-entropic-gravity/" docs i18n 08-discovery --exclude='MIGRATION.md'; then
+            echo 'Old website canonical URL remains in active publication files.' >&2
+            exit 1
+          fi
+          test -s docs/downloads/Closure_Ethics_Implementation_Spec_v0.1.pdf
+
+      - name: Commit migration branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Migrate Closure Ethics to dedicated canonical repository"
+          git push --force-with-lease origin migration-v01
