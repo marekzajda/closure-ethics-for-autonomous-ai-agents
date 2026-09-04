@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/sitemap.xml
