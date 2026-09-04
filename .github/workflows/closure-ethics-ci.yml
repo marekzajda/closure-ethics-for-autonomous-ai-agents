@@ -58,20 +58,57 @@ jobs:
         run: test -s docs/downloads/Closure_Ethics_Implementation_Spec_v0.1.pdf
       - name: Build multilingual site
         run: python i18n/build_i18n.py
-      - name: Validate multilingual pages and sitemap XML
+      - name: Validate multilingual completeness and sitemap XML
         run: |
           python - <<'PY'
           from pathlib import Path
+          import html as htmlmod
+          import re
           import xml.etree.ElementTree as ET
+
           root_dir = Path('docs')
           pages = ['index.html','principles.html','symbiosis.html','formalism.html','implementation.html','constitution.html','security.html','communication.html','standard.html','evals.html','genealogy.html']
-          for lang in ['cs','de','fr','es']:
-              for page in pages:
+          langs = ['cs','de','fr','es']
+          structural_tags = ['section','article','h1','h2','h3','ol','ul','li','a','pre']
+
+          def main_fragment(text: str) -> str:
+              m = re.search(r'<main>.*?</main>', text, flags=re.S)
+              assert m, 'page has no <main> block'
+              return m.group(0)
+
+          def tag_counts(fragment: str) -> dict[str, int]:
+              return {tag: len(re.findall(fr'<{tag}\\b', fragment)) for tag in structural_tags}
+
+          def visible_length(fragment: str) -> int:
+              fragment = re.sub(r'<script.*?</script>', ' ', fragment, flags=re.S|re.I)
+              fragment = re.sub(r'<style.*?</style>', ' ', fragment, flags=re.S|re.I)
+              text = re.sub(r'<[^>]+>', ' ', fragment)
+              text = htmlmod.unescape(text)
+              text = re.sub(r'\\s+', ' ', text).strip()
+              return len(text)
+
+          for page in pages:
+              en_text = (root_dir / page).read_text(encoding='utf-8')
+              en_main = main_fragment(en_text)
+              en_counts = tag_counts(en_main)
+              en_visible = visible_length(en_main)
+              for lang in langs:
                   p = root_dir / lang / page
                   assert p.exists(), f'missing localized page: {p}'
                   text = p.read_text(encoding='utf-8')
-                  assert f'<html lang="{lang}">' in text
-                  assert 'lang-switcher.js' in text
+                  assert f'<html lang="{lang}">' in text, f'wrong lang marker: {p}'
+                  assert 'lang-switcher.js' in text, f'missing language switcher: {p}'
+                  expected_canonical = f'https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/{lang}/{page}'
+                  assert f'<link rel="canonical" href="{expected_canonical}">' in text, f'wrong canonical: {p}'
+                  loc_main = main_fragment(text)
+                  loc_counts = tag_counts(loc_main)
+                  assert loc_counts == en_counts, f'structural mismatch {p}: {loc_counts} != {en_counts}'
+                  loc_visible = visible_length(loc_main)
+                  assert loc_visible >= int(en_visible * 0.75), (
+                      f'localized content too short in {p}: {loc_visible} vs English {en_visible}; '
+                      'possible summary/truncation regression'
+                  )
+
           sitemap = root_dir / 'sitemap.xml'
           root = ET.parse(sitemap).getroot()
           ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
@@ -80,6 +117,6 @@ jobs:
           assert len(urls) == len(set(urls)), 'sitemap contains duplicate URLs'
           expected_prefix = 'https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/'
           assert all(u.startswith(expected_prefix) for u in urls), 'unexpected sitemap URL outside canonical project prefix'
-          assert len(urls) >= 56, f'expected multilingual sitemap, found only {len(urls)} URLs'
-          print(f'Validated {len(urls)} sitemap URLs and {4*len(pages)} localized HTML pages')
+          assert len(urls) == 56, f'expected exactly 56 multilingual sitemap URLs, found {len(urls)}'
+          print(f'Validated structural parity for {4*len(pages)} localized pages and {len(urls)} sitemap URLs')
           PY
