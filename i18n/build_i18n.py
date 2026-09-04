@@ -10,7 +10,7 @@ BASE = "https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/"
 LOCALIZED = ("cs", "de", "fr", "es")
 PAGES = (
     "index.html", "principles.html", "symbiosis.html", "formalism.html",
-    "implementation.html", "constitution.html", "security.html",
+    "implementation.html", "constitution.html", "comparison.html", "security.html",
     "communication.html", "standard.html", "evals.html", "genealogy.html",
 )
 
@@ -18,12 +18,16 @@ MODULES = {
     lang: importlib.import_module(f"full_{lang}")
     for lang in LOCALIZED
 }
+COMPARISON_MODULES = {
+    lang: importlib.import_module(f"comparison_{lang}")
+    for lang in LOCALIZED
+}
 
 NAV = {
-    "cs": {"Overview":"Přehled","Principles":"Principy","Symbiosis":"Symbióza","Formalism":"Formalismus","Implementation":"Implementace","Constitution":"Konstituce","Security":"Bezpečnost","Communication":"Komunikace","Standard":"Standard","Evals":"Evaly","Genealogy":"Genealogie"},
-    "de": {"Overview":"Überblick","Principles":"Prinzipien","Symbiosis":"Symbiose","Formalism":"Formalismus","Implementation":"Implementierung","Constitution":"Verfassung","Security":"Sicherheit","Communication":"Kommunikation","Standard":"Standard","Evals":"Evals","Genealogy":"Genealogie"},
-    "fr": {"Overview":"Vue d’ensemble","Principles":"Principes","Symbiosis":"Symbiose","Formalism":"Formalisme","Implementation":"Implémentation","Constitution":"Constitution","Security":"Sécurité","Communication":"Communication","Standard":"Standard","Evals":"Évaluations","Genealogy":"Généalogie"},
-    "es": {"Overview":"Resumen","Principles":"Principios","Symbiosis":"Simbiosis","Formalism":"Formalismo","Implementation":"Implementación","Constitution":"Constitución","Security":"Seguridad","Communication":"Comunicación","Standard":"Estándar","Evals":"Evaluaciones","Genealogy":"Genealogía"},
+    "cs": {"Overview":"Přehled","Principles":"Principy","Symbiosis":"Symbióza","Formalism":"Formalismus","Implementation":"Implementace","Constitution":"Konstituce","Comparison":"Srovnání","Security":"Bezpečnost","Communication":"Komunikace","Standard":"Standard","Evals":"Evaly","Genealogy":"Genealogie"},
+    "de": {"Overview":"Überblick","Principles":"Prinzipien","Symbiosis":"Symbiose","Formalism":"Formalismus","Implementation":"Implementierung","Constitution":"Verfassung","Comparison":"Vergleich","Security":"Sicherheit","Communication":"Kommunikation","Standard":"Standard","Evals":"Evals","Genealogy":"Genealogie"},
+    "fr": {"Overview":"Vue d’ensemble","Principles":"Principes","Symbiosis":"Symbiose","Formalism":"Formalisme","Implementation":"Implémentation","Constitution":"Constitution","Comparison":"Comparaison","Security":"Sécurité","Communication":"Communication","Standard":"Standard","Evals":"Évaluations","Genealogy":"Généalogie"},
+    "es": {"Overview":"Resumen","Principles":"Principios","Symbiosis":"Simbiosis","Formalism":"Formalismo","Implementation":"Implementación","Constitution":"Constitución","Comparison":"Comparación","Security":"Seguridad","Communication":"Comunicación","Standard":"Estándar","Evals":"Evaluaciones","Genealogy":"Genealogía"},
 }
 
 TEXT = {
@@ -85,12 +89,20 @@ def page_url(lang: str, page: str) -> str:
     return BASE + lang + "/" + page
 
 
-def localize_shell(source: str, lang: str, page: str) -> str:
+def localized_content(lang: str, page: str) -> tuple[str, str, str]:
+    if page == "comparison.html":
+        module = COMPARISON_MODULES[lang]
+        title, description = module.META
+        return title, description, module.MAIN
     module = MODULES[lang]
     if page not in module.MAIN or page not in module.META:
         raise KeyError(f"missing complete {lang} localization for {page}")
-
     title, description = module.META[page]
+    return title, description, module.MAIN[page]
+
+
+def localize_shell(source: str, lang: str, page: str) -> str:
+    title, description, main_html = localized_content(lang, page)
     html = source
     html = re.sub(r'<html lang="en">', f'<html lang="{lang}">', html, count=1)
     html = re.sub(r'<title>.*?</title>', f'<title>{title}</title>', html, count=1, flags=re.S)
@@ -137,25 +149,21 @@ def localize_shell(source: str, lang: str, page: str) -> str:
         count=1,
     )
 
-    # Replace only the content layer; the canonical English DOM remains the structural template.
-    html, n = re.subn(r'<main>.*?</main>', module.MAIN[page], html, count=1, flags=re.S)
+    html, n = re.subn(r'<main>.*?</main>', main_html, html, count=1, flags=re.S)
     if n != 1:
         raise ValueError(f"could not replace <main> in {page}")
 
-    # A localized page is one directory deeper than its English source.
     html = html.replace('href="assets/', 'href="../assets/')
     html = html.replace('src="assets/', 'src="../assets/')
     html = html.replace('href="downloads/', 'href="../downloads/')
     for root_file in ROOT_FILES:
         html = html.replace(f'href="{root_file}"', f'href="../{root_file}"')
 
-    # Translate navigation labels without touching href values.
     for en, translated in NAV[lang].items():
         html = html.replace(f'>{en}<', f'>{translated}<')
     for en, translated in TEXT[lang].items():
         html = html.replace(en, translated)
 
-    # Localized alternate links are deliberately the same cross-language set on every variant.
     return html
 
 
@@ -200,7 +208,8 @@ def build_sitemap() -> None:
 def main() -> None:
     build_localized_pages()
     build_sitemap()
-    print(f"Built {len(LOCALIZED) * len(PAGES)} complete localized pages and 56 sitemap URLs")
+    total_urls = len(PAGES) * (1 + len(LOCALIZED)) + 1
+    print(f"Built {len(LOCALIZED) * len(PAGES)} complete localized pages and {total_urls} sitemap URLs")
 
 
 if __name__ == "__main__":
