@@ -34,11 +34,8 @@ jobs:
           set -euo pipefail
           git checkout -B migration-v01
           rsync -a source/closure-ethics/ ./
-          mkdir -p .github/workflows
+          mkdir -p .github
           cp source/.github/CODEOWNERS .github/CODEOWNERS
-          cp source/.github/workflows/closure-ethics-ci.yml .github/workflows/closure-ethics-ci.yml
-          cp source/.github/workflows/closure-ethics-pages.yml .github/workflows/closure-ethics-pages.yml
-          cp source/.github/workflows/closure-ethics-pdf.yml .github/workflows/closure-ethics-pdf.yml
           rm -rf source
 
       - name: Rewrite canonical repository and website identity
@@ -73,30 +70,14 @@ jobs:
               if updated != text:
                   path.write_text(updated, encoding='utf-8')
 
-          # Dedicated repo: local paths no longer carry the historical closure-ethics/ prefix.
-          for wf in Path('.github/workflows').glob('closure-ethics-*.yml'):
-              text = wf.read_text(encoding='utf-8')
-              text = text.replace("branches:\n      - closure-ethics", "branches:\n      - main")
-              text = text.replace("branches: [closure-ethics]", "branches: [main]")
-              text = text.replace("'closure-ethics/", "'")
-              text = text.replace('closure-ethics/', '')
-              wf.write_text(text, encoding='utf-8')
-
           codeowners = Path('.github/CODEOWNERS')
           if codeowners.exists():
-              text = codeowners.read_text(encoding='utf-8').replace('/closure-ethics/', '/')
-              codeowners.write_text(text, encoding='utf-8')
+              codeowners.write_text(
+                  codeowners.read_text(encoding='utf-8').replace('/closure-ethics/', '/'),
+                  encoding='utf-8'
+              )
 
-          # Build provenance must identify the new canonical repository.
-          pages = Path('.github/workflows/closure-ethics-pages.yml')
-          if pages.exists():
-              text = pages.read_text(encoding='utf-8')
-              text = text.replace("'repository': 'marekzajda/5D_6D-theory-of-entropic-gravity'",
-                                  "'repository': 'marekzajda/closure-ethics-for-autonomous-ai-agents'")
-              pages.write_text(text, encoding='utf-8')
-
-          migration = Path('MIGRATION.md')
-          migration.write_text('''# Canonical repository migration\n\nClosure Ethics for Autonomous AI Agents moved on 2026-09-04 from a development branch inside the historical Omega/RTR repository to this dedicated canonical repository.\n\nCanonical repository: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents\n\nCanonical website: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/\n\nHistorical source branch: https://github.com/marekzajda/5D_6D-theory-of-entropic-gravity/tree/closure-ethics/closure-ethics\n\nThe historical repository remains part of the documented genealogy. New Closure Ethics development should occur here.\n''', encoding='utf-8')
+          Path('MIGRATION.md').write_text('''# Canonical repository migration\n\nClosure Ethics for Autonomous AI Agents moved on 2026-09-04 from a development branch inside the historical Omega/RTR repository to this dedicated canonical repository.\n\nCanonical repository: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents\n\nCanonical website: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/\n\nHistorical source branch: https://github.com/marekzajda/5D_6D-theory-of-entropic-gravity/tree/closure-ethics/closure-ethics\n\nThe historical repository remains part of the documented genealogy. New Closure Ethics development should occur here.\n''', encoding='utf-8')
           PY
 
       - name: Rebuild multilingual site and canonical PDF
@@ -122,6 +103,12 @@ jobs:
             exit 1
           fi
           test -s docs/downloads/Closure_Ethics_Implementation_Spec_v0.1.pdf
+
+      - name: Remove generated caches before source commit
+        shell: bash
+        run: |
+          rm -rf docs/cs docs/de docs/fr docs/es
+          find . -type d -name __pycache__ -prune -exec rm -rf {} +
 
       - name: Commit migration branch
         shell: bash
