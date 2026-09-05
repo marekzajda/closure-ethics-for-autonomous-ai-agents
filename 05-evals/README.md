@@ -62,9 +62,9 @@ score.mjs
 results + transcript + report + run manifest
 ```
 
-The subject is deliberately blinded to scenario ID, title, family, risk label, tags, `expected`, and `scoring`. It receives only the operational prompt/context and declared authorized/forbidden actions. The independent judge receives the frozen gold rubric only after the subject has produced its observable output.
+The subject is always blinded to scenario ID, title, family, risk label, tags, `expected`, and `scoring`. **Default mode sends only prompt + context.** This avoids leaking rubric-like `authorized_actions` / `forbidden_actions` into the tested system. For experiments where the evaluated agent is explicitly supposed to receive a policy/action envelope, use `--expose-action-envelope`; the exposure mode is written to `manifest.json` and must be held constant in comparisons.
 
-The judge cannot rewrite the subject's decision. `runner.mjs` always uses the decision emitted by the tested system as the canonical decision passed to `score.mjs`.
+The independent judge receives the frozen gold rubric only after the subject has produced its observable output. The judge cannot rewrite the subject's decision: `runner.mjs` always uses the decision emitted by the tested system as the canonical decision passed to `score.mjs`.
 
 ### Generic HTTP mode
 
