@@ -41,6 +41,7 @@ function parseArgs(argv) {
     scenario: null,
     family: null,
     limit: null,
+    exposeActionEnvelope: false,
     selfTest: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
@@ -59,6 +60,7 @@ function parseArgs(argv) {
     else if (a === '--scenario') cfg.scenario = next();
     else if (a === '--family') cfg.family = next();
     else if (a === '--limit') cfg.limit = Number.parseInt(next(), 10);
+    else if (a === '--expose-action-envelope') cfg.exposeActionEnvelope = true;
     else if (a === '--self-test') cfg.selfTest = true;
     else if (a === '--help' || a === '-h') cfg.help = true;
     else throw new Error(`unknown argument: ${a}`);
@@ -75,13 +77,14 @@ function help() {
 `  node 05-evals/runner.mjs --subject <adapter.mjs> --judge <adapter.mjs> [options]\n` +
 `  node 05-evals/runner.mjs --self-test\n\n` +
 `Options:\n` +
-`  --out-dir <dir>       Output directory (default: 05-evals/runs/<timestamp>)\n` +
-`  --seed <value>        Deterministic presentation-order seed\n` +
-`  --repetitions <n>     Independent repetitions (default 1)\n` +
-`  --timeout-ms <n>      Per subject/judge call timeout (default 60000)\n` +
-`  --scenario <id>       Run one scenario only\n` +
-`  --family <name>       Filter by scenario family\n` +
-`  --limit <n>           Limit selected scenarios after deterministic shuffle\n`);
+`  --out-dir <dir>             Output directory (default: 05-evals/runs/<timestamp>)\n` +
+`  --seed <value>              Deterministic presentation-order seed\n` +
+`  --repetitions <n>           Independent repetitions (default 1)\n` +
+`  --timeout-ms <n>            Per subject/judge call timeout (default 60000)\n` +
+`  --scenario <id>             Run one scenario only\n` +
+`  --family <name>             Filter by scenario family\n` +
+`  --limit <n>                 Limit scenarios after deterministic shuffle\n` +
+`  --expose-action-envelope    Also expose dataset authorized/forbidden action lists to subject\n`);
 }
 
 function hashSeed(value) {
@@ -133,17 +136,20 @@ async function callWithTimeout(adapter, input, baseContext, timeoutMs) {
   }
 }
 
-function subjectInputFor(scenario, trialId) {
+function subjectInputFor(scenario, trialId, exposeActionEnvelope) {
+  const task = {
+    prompt: scenario.prompt,
+    context: scenario.context ?? {},
+  };
+  if (exposeActionEnvelope) {
+    task.authorized_actions = scenario.authorized_actions ?? [];
+    task.forbidden_actions = scenario.forbidden_actions ?? [];
+  }
   return {
     protocol: 'closure-ethics-benchmark/0.1',
     role: 'subject',
     trial_id: trialId,
-    task: {
-      prompt: scenario.prompt,
-      context: scenario.context ?? {},
-      authorized_actions: scenario.authorized_actions ?? [],
-      forbidden_actions: scenario.forbidden_actions ?? [],
-    },
+    task,
     output_contract: {
       decision: [...knownDecisions],
       required: ['decision', 'response_text'],
@@ -219,6 +225,7 @@ async function execute(cfg) {
     cfg.judge = path.join(HERE, 'adapters', 'reference-judge.mjs');
     cfg.seed = 'ci-self-test';
     cfg.repetitions = 1;
+    cfg.exposeActionEnvelope = false;
     cfg.outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'closure-ethics-runner-'));
   }
   if (!cfg.subject || !cfg.judge) throw new Error('--subject and --judge are required unless --self-test is used');
@@ -229,6 +236,7 @@ async function execute(cfg) {
   const outDir = path.resolve(cfg.outDir ?? path.join(HERE, 'runs', new Date().toISOString().replace(/[:.]/g, '-')));
   fs.mkdirSync(outDir, { recursive: true });
 
+  const effectiveSelected = cfg.limit === null ? selected.length : Math.min(selected.length, cfg.limit);
   const manifest = {
     protocol: 'closure-ethics-benchmark/0.1',
     benchmark_version: BENCHMARK_VERSION,
@@ -240,9 +248,10 @@ async function execute(cfg) {
     filters: { scenario: cfg.scenario, family: cfg.family, limit: cfg.limit },
     subject: { name: subject.name, version: subject.version, adapter: path.relative(process.cwd(), subject.path) },
     judge: { name: judge.name, version: judge.version, adapter: path.relative(process.cwd(), judge.path) },
-    subject_blinding: 'expected/scoring/title/family/tags/risk_level/scenario_id withheld from subject input',
+    subject_exposure: cfg.exposeActionEnvelope ? 'prompt + context + explicit action envelope' : 'prompt + context only',
+    subject_blinding: 'scenario_id/title/family/risk/tags/expected/scoring always withheld; action envelope withheld by default',
     scenario_count_available: all.length,
-    scenario_count_selected: selected.length,
+    scenario_count_selected: effectiveSelected,
   };
   fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 
@@ -256,7 +265,7 @@ async function execute(cfg) {
     for (let index = 0; index < order.length; index += 1) {
       const scenario = order[index];
       const trialId = `${runId}:r${String(rep).padStart(3, '0')}:t${String(index + 1).padStart(3, '0')}`;
-      const subjectInput = subjectInputFor(scenario, trialId);
+      const subjectInput = subjectInputFor(scenario, trialId, cfg.exposeActionEnvelope);
       const subjectContext = {
         benchmark_version: BENCHMARK_VERSION,
         run_id: runId,
