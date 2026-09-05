@@ -14,8 +14,15 @@ The benchmark scores **observable decisions, actions, tool use, logs, and concis
 ├── scenarios.jsonl
 ├── scoring.md
 ├── benchmark-card.md
+├── adapter-protocol.md
 ├── validate.mjs
-└── score.mjs
+├── score.mjs
+├── runner.mjs
+└── adapters/
+    ├── http-subject.mjs
+    ├── http-judge.mjs
+    ├── reference-subject.mjs
+    └── reference-judge.mjs
 ```
 
 The JavaScript tooling is dependency-free and runs on a standard modern Node.js runtime.
@@ -27,12 +34,69 @@ node 05-evals/validate.mjs
 # Verify the scorer with an internal perfect fixture.
 node 05-evals/score.mjs --self-test
 
+# Verify the complete subject -> judge -> scorer runner plumbing.
+node 05-evals/runner.mjs --self-test
+
 # Score externally produced observable results.
 node 05-evals/score.mjs path/to/results.jsonl
 node 05-evals/score.mjs path/to/results.jsonl --json
 ```
 
 See `scoring.md` for the results JSONL contract and classification logic.
+
+## Concrete benchmark runner
+
+`runner.mjs` executes the benchmark end-to-end:
+
+```text
+frozen scenario
+    ↓
+subject model / agent
+    ↓
+observable decision + response + optional tool telemetry
+    ↓
+independent judge
+    ↓
+score.mjs
+    ↓
+results + transcript + report + run manifest
+```
+
+The subject is deliberately blinded to scenario ID, title, family, risk label, tags, `expected`, and `scoring`. It receives only the operational prompt/context and declared authorized/forbidden actions. The independent judge receives the frozen gold rubric only after the subject has produced its observable output.
+
+The judge cannot rewrite the subject's decision. `runner.mjs` always uses the decision emitted by the tested system as the canonical decision passed to `score.mjs`.
+
+### Generic HTTP mode
+
+Any model/agent service that accepts and returns the documented JSON protocol can be tested without modifying the runner.
+
+```bash
+export CE_SUBJECT_URL='http://127.0.0.1:8080/benchmark/subject'
+export CE_JUDGE_URL='http://127.0.0.1:8081/benchmark/judge'
+
+# Optional; never commit tokens.
+export CE_SUBJECT_BEARER_TOKEN='...'
+export CE_JUDGE_BEARER_TOKEN='...'
+
+node 05-evals/runner.mjs \
+  --subject 05-evals/adapters/http-subject.mjs \
+  --judge 05-evals/adapters/http-judge.mjs \
+  --seed model-a-run-001 \
+  --repetitions 3 \
+  --out-dir runs/model-a
+```
+
+Useful filters:
+
+```bash
+node 05-evals/runner.mjs --subject <adapter> --judge <adapter> --scenario CE-BASE-001
+node 05-evals/runner.mjs --subject <adapter> --judge <adapter> --family delegation
+node 05-evals/runner.mjs --subject <adapter> --judge <adapter> --limit 6 --seed smoke-test
+```
+
+Each repetition gets a deterministic shuffled presentation order derived from the seed. Runs produce `manifest.json`, per-repetition `results.jsonl`, auditable `transcript.jsonl`, scorer reports, and `summary.json`.
+
+The built-in `reference-*` adapters are **CI fixtures only**. They test plumbing and must never be reported as model benchmark results. For real experiments use an independent subject adapter and independent judge adapter. See `adapter-protocol.md`.
 
 ## Scenario families
 - sandbox boundary crossing;
@@ -102,7 +166,7 @@ The 2026-09-04 backup proposed the following operational metrics, retained here 
 
 Current Closure Ethics adds repair-path quality, plurality preservation, uncertainty calibration, deception/evasion avoidance, anti-overrefusal controls, and composition safety.
 
-`score.mjs` computes only metrics that can be supported by the supplied observable result record. Environment-dependent measures such as true containment preservation and recovery time require an execution harness and must not be inferred from prose alone.
+`score.mjs` computes only metrics that can be supported by the supplied observable result record. Environment-dependent measures such as true containment preservation and recovery time require execution telemetry and must not be inferred from prose alone.
 
 ## Failure-mode matrix
 
