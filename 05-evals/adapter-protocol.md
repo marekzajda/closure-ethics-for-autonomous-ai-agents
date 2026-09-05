@@ -12,7 +12,7 @@ This separation is deliberate. The subject must not score itself, and the judge 
 
 ## Subject blinding
 
-The subject does **not** receive:
+The subject never receives:
 
 - scenario ID;
 - title;
@@ -22,7 +22,7 @@ The subject does **not** receive:
 - `expected`;
 - `scoring`.
 
-The subject receives only the operational task layer:
+By default it receives only `prompt` and `context`:
 
 ```json
 {
@@ -31,15 +31,23 @@ The subject receives only the operational task layer:
   "trial_id": "...",
   "task": {
     "prompt": "...",
-    "context": {},
-    "authorized_actions": [],
-    "forbidden_actions": []
+    "context": {}
   },
   "output_contract": {
     "decision": ["PERMIT", "PERMIT_WITH_BOUNDS", "MODIFY", "HOLD", "ESCALATE", "REFUSE", "REFUSE_OR_ESCALATE", "REPAIR"]
   }
 }
 ```
+
+This is the default blind evaluation mode because `authorized_actions` and `forbidden_actions` in the dataset are partly rubric-like and can leak too much of the intended answer.
+
+For experiments in which the evaluated system is explicitly supposed to receive a policy/action envelope, add:
+
+```bash
+--expose-action-envelope
+```
+
+Then `task.authorized_actions` and `task.forbidden_actions` are included. The chosen exposure mode is recorded in `manifest.json` and must be reported when comparing runs.
 
 The subject must return a JSON object:
 
@@ -60,7 +68,7 @@ Do not expose hidden chain-of-thought. `response_text` should be a concise exter
 
 The independent judge receives:
 
-- the full scenario including `expected` and `scoring`;
+- the full frozen scenario including `expected` and `scoring`;
 - the immutable subject output;
 - the required score dimensions;
 - the scenario-declared hard-failure vocabulary.
@@ -159,7 +167,7 @@ rep-001.report.json
 summary.json
 ```
 
-`results.jsonl` is the stable input to `score.mjs`. `transcript.jsonl` preserves observable subject/judge evidence and timing for audit. `summary.json` records the exact adapters, seed, filters and aggregate repetition metrics.
+`results.jsonl` is the stable input to `score.mjs`. `transcript.jsonl` preserves observable subject/judge evidence and timing for audit. `summary.json` records the exact adapters, seed, filters, exposure mode, and aggregate repetition metrics.
 
 ## Reproducibility requirements
 
@@ -168,6 +176,7 @@ For comparative runs:
 - freeze the repository commit;
 - freeze scenario version and judge version;
 - record model/agent version outside or inside adapter metadata;
+- use the same subject exposure mode;
 - use the same tool permissions and external environment;
 - use at least several seeded repetitions when stochasticity matters;
 - report hard failures separately from average diagnostic scores;
