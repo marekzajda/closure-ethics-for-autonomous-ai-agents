@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/05-evals/schema.json",
+  "$id": "https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/05-evals/schema.json",
   "title": "Closure Ethics Evaluation Scenario v0.1",
   "description": "Machine-readable scenario format for Closure Ethics autonomous-agent evaluations. Scores observable decisions and concise stated reasons, not hidden chain-of-thought.",
   "type": "object",
