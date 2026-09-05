@@ -21,7 +21,32 @@ It is not intended to measure general intelligence, helpfulness, factual knowled
 - `scoring.md` — scoring rubric and aggregate metrics.
 - `validate.mjs` — dependency-free dataset validator.
 - `score.mjs` — dependency-free result scorer.
-- `README.md` — design rationale and historical lineage.
+- `runner.mjs` — end-to-end benchmark harness with seeded ordering and repeated runs.
+- `adapter-protocol.md` — subject/judge adapter contract and blinding rules.
+- `adapters/http-subject.mjs` — generic subject endpoint adapter.
+- `adapters/http-judge.mjs` — generic independent-judge endpoint adapter.
+- `adapters/reference-*.mjs` — CI-only plumbing fixtures, not research evaluators.
+- `README.md` — design rationale, commands, and historical lineage.
+
+## Runner architecture
+
+```text
+scenario (gold hidden from subject)
+        ↓
+subject model / agent
+        ↓
+observable decision, response and optional telemetry
+        ↓
+independent judge with frozen rubric
+        ↓
+score.mjs non-compensable classification
+        ↓
+manifest + transcript + report + aggregate summary
+```
+
+The subject does not receive scenario ID, title, family, risk label, tags, `expected`, or `scoring`. This reduces direct rubric leakage and makes simple benchmark memorization harder.
+
+The judge receives the frozen scenario rubric only after the subject responds. The subject's decision is immutable at that point: the judge may score it, but cannot replace it.
 
 ## Scenario coverage
 
@@ -66,13 +91,13 @@ Conversely, safe explicitly authorized behavior should not be penalized merely b
 
 ### 1. Text-only policy evaluation
 
-Provide each scenario to a model and score its observable proposed decision and concise reason codes.
+Provide each scenario to a model through a subject adapter and score its observable proposed decision with an independent judge adapter.
 
 Useful for early comparison, but limited because proposed behavior may differ from executed behavior.
 
 ### 2. Tool-using sandbox evaluation
 
-Connect the evaluated agent to mocked or sandboxed tools and record actual calls, permission boundaries, logs, and recovery actions.
+Connect the evaluated agent to mocked or sandboxed tools and place actual calls, permission boundaries, logs, and recovery actions in `observable_actions` / `telemetry`.
 
 This is the preferred mode for agentic systems.
 
@@ -80,44 +105,54 @@ This is the preferred mode for agentic systems.
 
 Run scenarios with multiple agents or delegated subagents and re-evaluate the composed transition rather than averaging local decisions.
 
+### 4. Repeated comparative evaluation
+
+Use fixed benchmark commit, fixed judge version, identical tool envelope, seeded scenario order, and multiple repetitions for stochastic systems. `runner.mjs` records the seed and adapter identity in `manifest.json` and summarizes repetition-level metrics.
+
 ## Minimum reporting requirements
 
 A public result should report:
 
 - benchmark version / commit;
 - evaluated model or agent version;
+- subject adapter version;
+- independent judge method and version;
 - system prompt or policy layer where disclosure is permitted;
 - tool capability envelope;
 - number of runs per scenario;
+- presentation-order seed(s);
 - sampling parameters where relevant;
-- evaluator method (human, deterministic, model-assisted, or hybrid);
 - hard-failure counts;
 - scenario classifications;
 - per-dimension diagnostic means;
 - anti-overrefusal result;
-- known harness limitations.
+- known harness limitations;
+- whether the run was text-only or execution/sandbox based.
 
 ## Known limitations
 
 1. v0.1 is a research prototype with a small scenario set.
 2. Several concepts — especially agency preservation and bounded repair — remain domain-dependent.
 3. Text-only results can overestimate safety because stated intent is not equivalent to executed behavior.
-4. Human or model-assisted scoring may introduce evaluator variance.
+4. Human or model-assisted judging may introduce evaluator variance and correlated model-family bias.
 5. The scenario set is authored from the Closure Ethics framework and therefore tests its own proposed invariants; external benchmark validation is still needed.
 6. Strong performance does not demonstrate universal alignment, legal compliance, or absence of unknown failure modes.
 7. Critic capture and specification gaming can affect both evaluated systems and the benchmark harness itself.
+8. The generic HTTP adapters establish transport, not provider-specific reproducibility; provider/model wrappers must record their own model and sampling configuration.
+9. The built-in reference subject/judge are CI fixtures that intentionally know the frozen expected behavior and must never be treated as benchmark evidence.
 
 ## Anti-gaming guidance
 
 Where feasible:
 
-- hide scenario labels from the evaluated model;
+- hide scenario labels and gold rubric from the evaluated model;
 - paraphrase scenario surface forms while preserving invariant structure;
 - include safe-action controls to detect blanket refusal;
 - run counterfactual variants with changed authorization status;
 - compare declared reason codes with actual tool behavior;
 - use independent telemetry for high-impact actions;
-- preserve immutable benchmark and policy versions.
+- use an evaluator that is organizationally or technically separated from the subject where practical;
+- preserve immutable benchmark, judge, adapter, and policy versions.
 
 ## Versioning policy
 

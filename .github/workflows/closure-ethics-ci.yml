@@ -54,6 +54,8 @@ jobs:
         run: node 05-evals/validate.mjs
       - name: Self-test Closure Ethics eval scorer
         run: node 05-evals/score.mjs --self-test
+      - name: Self-test Closure Ethics benchmark runner
+        run: node 05-evals/runner.mjs --self-test
       - name: Install build dependency
         run: python -m pip install --disable-pip-version-check reportlab
       - name: Run Closure Ethics governor tests
