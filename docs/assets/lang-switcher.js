@@ -61,6 +61,26 @@
     else navLinks.appendChild(link);
   }
 
+  // Practical examples are part of the implementation surface and should be
+  // reachable from every localized page without hand-editing every header.
+  const examplesLabels = {
+    en: "Examples",
+    cs: "Příklady",
+    de: "Beispiele",
+    fr: "Exemples",
+    es: "Ejemplos"
+  };
+  if (navLinks && !navLinks.querySelector('a[href="practical-examples.html"], a[data-practical-examples]')) {
+    const link = document.createElement("a");
+    link.href = "practical-examples.html";
+    link.textContent = examplesLabels[currentLang] || "Examples";
+    link.dataset.practicalExamples = "true";
+    if (page === "practical-examples.html") link.setAttribute("aria-current", "page");
+    const implementation = navLinks.querySelector('a[href="implementation.html"]');
+    if (implementation) implementation.insertAdjacentElement("afterend", link);
+    else navLinks.appendChild(link);
+  }
+
   const targetFor = (lang) => {
     const relative = lang === "en"
       ? (page === "index.html" ? "" : page)
