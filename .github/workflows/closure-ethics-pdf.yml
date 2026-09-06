@@ -45,6 +45,9 @@ jobs:
       - name: Run Closure Ethics governor tests
         working-directory: 09-implementation
         run: python -m unittest -v test_reference.py
+      - name: Run Omega Sentinel boundary tests
+        working-directory: 09-implementation/omega-sentinel
+        run: python -m unittest -v test_omega_sentinel.py
       - name: Run Universal Closure Protocol tests
         working-directory: 11-communication
         run: python -m unittest -v test_closure_protocol.py

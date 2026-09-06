@@ -49,6 +49,19 @@
     else navLinks.appendChild(link);
   }
 
+  // Omega Sentinel is currently a canonical English case-study page. Keep one
+  // stable URL from every localized navigation instead of producing dead links.
+  if (navLinks && !navLinks.querySelector('a[data-omega-sentinel]')) {
+    const link = document.createElement("a");
+    link.href = new URL("sentinel.html", projectRoot).href;
+    link.textContent = "Sentinel";
+    link.dataset.omegaSentinel = "true";
+    if (page === "sentinel.html") link.setAttribute("aria-current", "page");
+    const implementation = navLinks.querySelector('a[href="implementation.html"]');
+    if (implementation) implementation.insertAdjacentElement("afterend", link);
+    else navLinks.appendChild(link);
+  }
+
   const targetFor = (lang) => {
     const relative = lang === "en"
       ? (page === "index.html" ? "" : page)

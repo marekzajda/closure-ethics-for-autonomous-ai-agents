@@ -1,0 +1,10 @@
+{
+  "workspace_root": ".",
+  "telemetry_dir": "./_omega_sentinel",
+  "policy_path": "./closure_policy_v0_1.json",
+  "sample_seconds": 30,
+  "heartbeat_seconds": 300,
+  "bridge_interval_seconds": 300,
+  "tail_lines": 40,
+  "command_patterns": ["omega_m5p4e"]
+}

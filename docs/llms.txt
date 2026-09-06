@@ -19,6 +19,7 @@
 - Agent Constitution: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/constitution.html
 - Evaluation Suite: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/evals.html
 - Research Genealogy: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/genealogy.html
+- Omega Sentinel case study: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/sentinel.html
 
 ## Open implementation
 
@@ -27,6 +28,16 @@
 - Runnable example: https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/example.py
 - Reference tests: https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/test_reference.py
 - Example policy: https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/policy.example.json
+- Omega Sentinel source and policy: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/tree/main/09-implementation/omega-sentinel
+
+## Omega Sentinel applied case study
+
+- Version: Omega Sentinel v0.2.0, extending the hardened v0.1.2 observer.
+- Scope: read-only local telemetry for Omega research runs on a Windows workstation.
+- Permitted outputs: latest.json, events.ndjson, closure_audit.ndjson, dashboard.txt and bridge.json under the dedicated _omega_sentinel subtree.
+- Explicit exclusions: process control, scientific-file modification, deletion, publication, privilege changes and Sentinel network access.
+- Separation rule: bridge.json is a local payload only; external GitHub transport is outside the Sentinel and needs separate authorization.
+- Evidentiary boundary: this demonstrates an executable bounded-authority pattern, not solved alignment or universal morality.
 
 ## Recovered 2026-09-04 foundations
 

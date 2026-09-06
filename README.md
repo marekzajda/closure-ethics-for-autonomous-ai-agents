@@ -68,7 +68,14 @@ closure-ethics/
 │   ├── closure_ethics.py
 │   ├── example.py
 │   ├── test_reference.py
-│   └── policy.example.json
+│   ├── policy.example.json
+│   └── omega-sentinel/
+│       ├── README.md
+│       ├── omega_sentinel.py
+│       ├── omega_sentinel_v0_2.py
+│       ├── closure_kernel.py
+│       ├── closure_policy_v0_1.json
+│       └── test_omega_sentinel.py
 ├── 10-security/
 │   └── AGENTIC_SECURITY_MODEL.md
 ├── 11-communication/
@@ -119,6 +126,7 @@ Additional recovered technical separations:
 - Vendor-neutral Global AI Closure Standard working draft.
 - Public search-indexable landing page linking the research, DOI history, benchmark artifacts and machine-readable agent policy.
 - Open PDF containing mathematical specification, recovered protocol lineage and complete reference code.
+- Omega Sentinel: a runnable observe-only case study with an executable authority boundary and local audit trail.
 
 ## Discovery and indexing
 

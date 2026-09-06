@@ -14,6 +14,10 @@ PAGES = (
     "communication.html", "standard.html", "evals.html", "genealogy.html",
 )
 
+# Canonical pages that are intentionally English-only until a complete,
+# non-summary localization is available.
+ENGLISH_ONLY_PAGES = ("sentinel.html",)
+
 MODULES = {
     lang: importlib.import_module(f"full_{lang}")
     for lang in LOCALIZED
@@ -213,6 +217,14 @@ def build_sitemap() -> None:
                 f'    <xhtml:link rel="alternate" hreflang="x-default" href="{escape(page_url("en", page))}" />'
             )
             lines.append("  </url>")
+    for page in ENGLISH_ONLY_PAGES:
+        lines.extend([
+            "  <url>",
+            f"    <loc>{escape(page_url('en', page))}</loc>",
+            f'    <xhtml:link rel="alternate" hreflang="en" href="{escape(page_url("en", page))}" />',
+            f'    <xhtml:link rel="alternate" hreflang="x-default" href="{escape(page_url("en", page))}" />',
+            "  </url>",
+        ])
     lines.extend([
         "  <url>",
         f"    <loc>{escape(BASE + 'downloads/Closure_Ethics_Implementation_Spec_v0.1.pdf')}</loc>",
@@ -225,7 +237,7 @@ def build_sitemap() -> None:
 def main() -> None:
     build_localized_pages()
     build_sitemap()
-    total_urls = len(PAGES) * (1 + len(LOCALIZED)) + 1
+    total_urls = len(PAGES) * (1 + len(LOCALIZED)) + len(ENGLISH_ONLY_PAGES) + 1
     print(f"Built {len(LOCALIZED) * len(PAGES)} complete localized pages and {total_urls} sitemap URLs")
 
 
