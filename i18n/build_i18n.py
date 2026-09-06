@@ -11,12 +11,12 @@ LOCALIZED = ("cs", "de", "fr", "es")
 PAGES = (
     "index.html", "principles.html", "symbiosis.html", "formalism.html",
     "implementation.html", "constitution.html", "comparison.html", "security.html",
-    "communication.html", "standard.html", "evals.html", "genealogy.html",
+    "communication.html", "standard.html", "evals.html", "genealogy.html", "sentinel.html",
 )
 
 # Canonical pages that are intentionally English-only until a complete,
 # non-summary localization is available.
-ENGLISH_ONLY_PAGES = ("sentinel.html",)
+ENGLISH_ONLY_PAGES = ()
 
 MODULES = {
     lang: importlib.import_module(f"full_{lang}")
@@ -101,6 +101,9 @@ def page_url(lang: str, page: str) -> str:
 
 
 def localized_content(lang: str, page: str) -> tuple[str, str, str]:
+    if page == "sentinel.html":
+        from sentinel_translations import localized
+        return localized(lang)
     if page == "comparison.html":
         module = COMPARISON_MODULES[lang]
         title, description = module.META
@@ -160,7 +163,7 @@ def localize_shell(source: str, lang: str, page: str) -> str:
         count=1,
     )
 
-    html, n = re.subn(r'<main>.*?</main>', main_html, html, count=1, flags=re.S)
+    html, n = re.subn(r'<main>.*?</main>', lambda _: main_html, html, count=1, flags=re.S)
     if n != 1:
         raise ValueError(f"could not replace <main> in {page}")
 
@@ -185,6 +188,16 @@ def localize_shell(source: str, lang: str, page: str) -> str:
         if n != 1:
             raise ValueError(f"could not replace localized eval package in {lang}/{page}")
 
+    if page == "sentinel.html":
+        footer_labels = {
+            "cs": ("Aplikovaná případová studie Closure Ethics", "Zdrojový kód na GitHubu ↗"),
+            "de": ("Angewandte Closure Ethics Fallstudie", "Quellcode auf GitHub ↗"),
+            "fr": ("Étude de cas appliquée Closure Ethics", "Code source sur GitHub ↗"),
+            "es": ("Caso práctico aplicado de Closure Ethics", "Código fuente en GitHub ↗"),
+        }
+        caption, source_label = footer_labels[lang]
+        html = html.replace("Closure Ethics applied case study", caption)
+        html = html.replace(">GitHub source ↗<", ">" + source_label + "<")
     return html
 
 

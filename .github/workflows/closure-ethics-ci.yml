@@ -82,7 +82,7 @@ jobs:
           import xml.etree.ElementTree as ET
 
           root_dir = Path('docs')
-          pages = ['index.html','principles.html','symbiosis.html','formalism.html','implementation.html','constitution.html','comparison.html','security.html','communication.html','standard.html','evals.html','genealogy.html']
+          pages = ['index.html','principles.html','symbiosis.html','formalism.html','implementation.html','constitution.html','comparison.html','security.html','communication.html','standard.html','evals.html','genealogy.html','sentinel.html']
           langs = ['cs','de','fr','es']
           structural_tags = ['section','article','h1','h2','h3','ol','ul','li','a','pre']
 
@@ -132,6 +132,6 @@ jobs:
           assert len(urls) == len(set(urls)), 'sitemap contains duplicate URLs'
           expected_prefix = 'https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/'
           assert all(u.startswith(expected_prefix) for u in urls), 'unexpected sitemap URL outside canonical project prefix'
-          assert len(urls) == 62, f'expected exactly 62 sitemap URLs, found {len(urls)}'
+          assert len(urls) == 66, f'expected exactly 66 sitemap URLs, found {len(urls)}'
           print(f'Validated structural parity for {4*len(pages)} localized pages and {len(urls)} sitemap URLs')
           PY
