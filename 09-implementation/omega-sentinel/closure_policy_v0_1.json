@@ -1,0 +1,37 @@
+{
+  "policy_version": "omega-sentinel-closure-policy-v0.1",
+  "mode": "observe_only",
+  "telemetry_dir_name": "_omega_sentinel",
+  "allowed_read_actions": [
+    "read_process_table",
+    "read_gpu_status",
+    "read_log_tail",
+    "read_scientific_summary"
+  ],
+  "allowed_write_actions": [
+    "write_local_telemetry",
+    "write_local_audit"
+  ],
+  "allowed_telemetry_files": [
+    "latest.json",
+    "events.ndjson",
+    "closure_audit.ndjson",
+    "dashboard.txt",
+    "bridge.json"
+  ],
+  "max_autonomous_write_risk": {
+    "irreversible": 0.0,
+    "scientific": 0.0,
+    "external": 0.0,
+    "privilege": 0.0,
+    "uncertainty": 0.0
+  },
+  "explicitly_forbidden": [
+    "process_control",
+    "scientific_file_write",
+    "delete",
+    "publish",
+    "network_access",
+    "privilege_change"
+  ]
+}

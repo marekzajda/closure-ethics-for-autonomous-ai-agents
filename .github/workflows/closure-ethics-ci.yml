@@ -61,6 +61,9 @@ jobs:
       - name: Run Closure Ethics governor tests
         working-directory: 09-implementation
         run: python -m unittest -v test_reference.py
+      - name: Run Omega Sentinel boundary tests
+        working-directory: 09-implementation/omega-sentinel
+        run: python -m unittest -v test_omega_sentinel.py
       - name: Run Universal Closure Protocol tests
         working-directory: 11-communication
         run: python -m unittest -v test_closure_protocol.py
@@ -129,6 +132,6 @@ jobs:
           assert len(urls) == len(set(urls)), 'sitemap contains duplicate URLs'
           expected_prefix = 'https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/'
           assert all(u.startswith(expected_prefix) for u in urls), 'unexpected sitemap URL outside canonical project prefix'
-          assert len(urls) == 61, f'expected exactly 61 multilingual sitemap URLs, found {len(urls)}'
+          assert len(urls) == 62, f'expected exactly 62 sitemap URLs, found {len(urls)}'
           print(f'Validated structural parity for {4*len(pages)} localized pages and {len(urls)} sitemap URLs')
           PY
