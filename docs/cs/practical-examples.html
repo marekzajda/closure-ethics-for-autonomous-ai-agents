@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Praktické příklady Closure Ethics | Spustitelné scénáře</title>
+<meta name="description" content="Sedm konkrétních spustitelných scénářů Closure Ethics s DEMO_POLICY a datovými strukturami z closure_ethics.py: sandbox, repair, klamání, pluralita agentury, multi-agentní kompozice, repair search a recovery.">
+<meta name="robots" content="index,follow,max-image-preview:large"><meta name="author" content="Project Möbia and Marek Zajda">
+<link rel="canonical" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/practical-examples.html">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="alternate" hreflang="en" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/practical-examples.html"><link rel="alternate" hreflang="cs" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/practical-examples.html"><link rel="alternate" hreflang="de" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/de/practical-examples.html"><link rel="alternate" hreflang="fr" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/fr/practical-examples.html"><link rel="alternate" hreflang="es" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/es/practical-examples.html"><link rel="alternate" hreflang="x-default" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/practical-examples.html">
+<script src="../assets/lang-switcher.js" defer></script>
+</head>
+<body>
+<header class="site-header"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-mark"></span>Closure Ethics</a><nav class="nav-links" aria-label="Hlavní navigace"><a href="index.html">Přehled</a><a href="principles.html">Principy</a><a href="symbiosis.html">Symbióza</a><a href="formalism.html">Formalismus</a><a href="implementation.html">Implementace</a><a aria-current="page" href="practical-examples.html">Příklady</a><a href="constitution.html">Konstituce</a><a href="evals.html">Evaluace</a><a href="genealogy.html">Genealogie</a></nav></div></header>
+<main>
+<section class="page-hero"><div class="wrap"><span class="eyebrow">Spustitelné referenční scénáře</span><h1>Praktické příklady implementace Closure Ethics.</h1><p>Sedm konkrétních scénářů založených na veřejné referenční implementaci. Používají <span class="mono">DEMO_POLICY</span> a skutečné datové struktury z <span class="mono">closure_ethics.py</span>, takže nejde jen o pseudokód.</p><div class="actions"><a class="button primary" href="https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/practical_examples.py">Spustitelné příklady ↗</a><a class="button" href="https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/closure_ethics.py">Referenční governor ↗</a><a class="button" href="implementation.html">Specifikace implementace</a></div><div class="notice"><strong>Důležité:</strong> <span class="mono">DEMO_POLICY</span> je demonstrační profil, nikoli univerzální morální konstanta ani hotové produkční prahy. Reálné nasazení musí definovat, auditovat a verzovat vlastní politiku.</div></div></section>
+<section class="section"><div class="wrap prose"><span class="eyebrow">Společný základ</span><h2>Přímé použití referenčního governoru</h2><pre class="formula">from closure_ethics import *
+
+def I(x):
+    return Interval.point(x)
+
+governor = ClosureEthicsGovernor(DEMO_POLICY)</pre><p>Kompletní spustitelná verze všech sedmi scénářů je v souboru <span class="mono">09-implementation/practical_examples.py</span>. Níže je jejich význam a očekávané rozhodnutí.</p></div></section>
+<section class="section"><div class="wrap"><div class="grid">
+<article class="card full"><span class="tag">1 · Sandbox</span><h3>Přímý deploy vs. sandboxed canary</h3><p>Přímý deploy má vysokou task utility, ale ztrácí auditovatelnost, repair path, reverzibilitu a pluralitu agentury. Governor proto vybere <span class="mono">sandboxed-canary</span> se statusem <span class="mono">EXECUTE</span>.</p><pre class="formula">decision = governor.choose([unsafe, safe])
+print(decision.status)          # EXECUTE
+print(decision.selected_action) # sandboxed-canary</pre></article>
+<article class="card full"><span class="tag">2 · Repair</span><h3>Vysoká utilita nekompenzuje chybějící repair path</h3><p>Akce s <span class="mono">task_utility=1.0</span> a bez bounded repair zůstává nepřípustná. Governor zvolí níže odměňovanou variantu s opravnou cestou.</p><pre class="formula">d = governor.choose([bad, good])
+# selected_action == "lower-reward-with-repair"</pre></article>
+<article class="card full"><span class="tag">3 · Deception</span><h3>Slepá poslušnost nestačí</h3><p>Plná autorizace sama nestačí, pokud akce nese vysoké riziko concealment nebo covert persistence. Výsledkem je <span class="mono">REFUSE_OR_ESCALATE</span> a důvod <span class="mono">REFUSE_COVERT_ACTION</span>.</p></article>
+<article class="card full"><span class="tag">4 · Agency</span><h3>Ztráta plurality agentury</h3><p>Silná koncentrace praktické kapacity do jednoho aktéra vyvolá <span class="mono">AGENCY_LOSS</span>. Metrika sleduje jak individuální retenci, tak efektivní pluralitu.</p><pre class="formula">ev = evaluate(centralize, DEMO_POLICY)
+print(ev.violations)  # ('AGENCY_LOSS',)</pre></article>
+<article class="card full"><span class="tag">5 · Composition</span><h3>Multi-agentní kompozice: lokálně OK, společně špatně</h3><p>Dvě lokálně přípustné akce mohou vytvořit společný přechod s nízkou auditovatelností. Proto se joint action znovu vyhodnocuje a lokální skóre se neprůměrují.</p><pre class="formula">print(evaluate(local1, DEMO_POLICY).admissible)          # True
+print(evaluate(local2, DEMO_POLICY).admissible)          # True
+print(governor.evaluate_joint_action(joint).admissible)  # False</pre><div class="signal"><strong>Klíčový bod:</strong> přípustnost není automaticky uzavřená vůči kompozici.</div></article>
+<article class="card full"><span class="tag">6 · Pareto repair</span><h3>Bounded repair-path search</h3><p>Pareto label-setting search musí současně splnit rozpočet nákladů i rizika. Levná, ale příliš riziková cesta je odmítnuta ve prospěch bezpečnější cesty <span class="mono">('x', 'b', 'safe')</span>.</p><pre class="formula">cert = bounded_repair_search(
+    graph, start="x", safe_states={"safe"}, max_cost=6, max_risk=3
+)
+print(cert.exists)  # True
+print(cert.path)    # ('x', 'b', 'safe')</pre></article>
+<article class="card full"><span class="tag">7 · Recovery</span><h3>Recovery režim</h3><p>Když všechny primární akce selžou, governor použije stejné invarianty na explicitní recovery kandidáty. Bezpečnější <span class="mono">sandbox-and-log</span> může být vybrán jako <span class="mono">EXECUTE_RECOVERY</span>.</p><pre class="formula">d = governor.choose(
+    candidates=[unsafe],
+    recovery_candidates=[recovery],
+)
+# status == "EXECUTE_RECOVERY"
+# selected_action == "sandbox-and-log"</pre></article>
+</div></div></section>
+<section class="section"><div class="wrap prose"><span class="eyebrow">Zapojení do agenta</span><h2>Typický vzor planner → governor → executor</h2><pre class="formula"># 1. Planner navrhne kandidáty
+candidates = planner.propose(state)
+
+# 2. Doménové adaptéry vytvoří auditovatelné ActionEvidence
+evidences = [domain_adapter.to_evidence(c, state) for c in candidates]
+
+# 3. Governor rozhodne
+decision = governor.choose(evidences, recovery_candidates=recovery_evidences)
+
+# 4. Provede se jen vybraná přípustná akce
+if decision.status in ("EXECUTE", "EXECUTE_RECOVERY"):
+    executor.run(decision.selected_action)
+else:
+    escalation_queue.submit(decision.to_json())</pre><p>V produkční integraci je <span class="mono">selected_action</span> identifikátor akce. Executor by jej měl rozlišit vůči registru kandidátů, nikoli zacházet s libovolným textem jako se spustitelným příkazem.</p><div class="signal"><strong>Hranice odpovědnosti:</strong> governor rozhoduje nad strukturovanými důkazy; doménové adaptéry zůstávají odpovědné za uzemnění škody, autorizace, klamání a dalších vstupních veličin.</div></div></section>
+</main>
+<footer class="footer"><div class="wrap footer-row"><span>Project Möbia and Marek Zajda · výzkumný projekt Closure Ethics</span><span><a href="implementation.html">Implementace</a> · <a href="https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/practical_examples.py">Spustitelné příklady ↗</a></span></div></footer>
+</body></html>

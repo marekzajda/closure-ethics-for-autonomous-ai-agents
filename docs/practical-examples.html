@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Practical Closure Ethics Examples | Runnable Reference Scenarios</title>
+<meta name="description" content="Seven concrete runnable Closure Ethics scenarios using DEMO_POLICY and the public data structures in closure_ethics.py: sandboxing, repairability, deception, agency plurality, multi-agent composition, repair search and recovery.">
+<meta name="robots" content="index,follow,max-image-preview:large"><meta name="author" content="Project Möbia and Marek Zajda">
+<link rel="canonical" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/practical-examples.html">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="alternate" hreflang="en" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/practical-examples.html">
+<link rel="alternate" hreflang="cs" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/practical-examples.html">
+<link rel="alternate" hreflang="de" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/de/practical-examples.html">
+<link rel="alternate" hreflang="fr" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/fr/practical-examples.html">
+<link rel="alternate" hreflang="es" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/es/practical-examples.html">
+<link rel="alternate" hreflang="x-default" href="https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/practical-examples.html">
+<script src="assets/lang-switcher.js" defer></script>
+</head>
+<body>
+<header class="site-header"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-mark"></span>Closure Ethics</a><nav class="nav-links" aria-label="Primary"><a href="index.html">Overview</a><a href="principles.html">Principles</a><a href="symbiosis.html">Symbiosis</a><a href="formalism.html">Formalism</a><a href="implementation.html">Implementation</a><a aria-current="page" href="practical-examples.html">Examples</a><a href="constitution.html">Constitution</a><a href="evals.html">Evals</a><a href="genealogy.html">Genealogy</a></nav></div></header>
+<main>
+<section class="page-hero"><div class="wrap"><span class="eyebrow">Runnable reference scenarios</span><h1>Practical examples of Closure Ethics in code.</h1><p>Seven concrete scenarios based on the public reference implementation. They use <span class="mono">DEMO_POLICY</span> and the actual data structures from <span class="mono">closure_ethics.py</span>, so the examples can be inspected, modified and executed rather than treated as pseudocode.</p><div class="actions"><a class="button primary" href="https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/practical_examples.py">Open runnable examples ↗</a><a class="button" href="https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/closure_ethics.py">Reference governor ↗</a><a class="button" href="implementation.html">Implementation specification</a></div><div class="notice"><strong>Important:</strong> <span class="mono">DEMO_POLICY</span> is a demonstration profile, not a universal moral constant or production-ready threshold set. Real deployments must define, review and version their own policy values.</div></div></section>
+<section class="section"><div class="wrap prose"><span class="eyebrow">Common setup</span><h2>Use the reference governor directly</h2><pre class="formula">from closure_ethics import *
+
+def I(x):
+    return Interval.point(x)
+
+governor = ClosureEthicsGovernor(DEMO_POLICY)</pre><p>The complete executable version of all scenarios is kept in <span class="mono">09-implementation/practical_examples.py</span>. The page below mirrors the important inputs and expected decisions.</p></div></section>
+<section class="section"><div class="wrap"><div class="grid">
+<details class="card full" open><summary><strong>1. Direct deployment vs. sandboxed canary</strong></summary><p>A high-utility direct deployment loses because it damages auditability, bounded repair, reversibility and plurality of agency. The lower-utility sandbox remains admissible.</p><pre class="formula">unsafe = ActionEvidence(
+    action_id="deploy-directly",
+    catastrophic_risk=Interval(0.01, 0.04),
+    agency_before={"operator": 1.0, "reviewer": 1.0},
+    agency_after={"operator": 0.8, "reviewer": 0.2},
+    audit=AuditEvidence(I(0.4), I(0.6), I(0.2)),
+    repair=RepairEvidence(False, I(1.0), I(1.0)),
+    reversibility=ReversibilityEvidence(I(0.2), I(0.3), I(0.4)),
+    authorization=AuthorizationEvidence(I(0.9), I(0.9), I(0.8)),
+    deception=DeceptionEvidence(I(0.0), I(0.0), I(0.0), I(0.0)),
+    task_utility=I(0.95),
+)
+
+safe = ActionEvidence(
+    action_id="sandboxed-canary",
+    catastrophic_risk=Interval(0.001, 0.01),
+    agency_before={"operator": 1.0, "reviewer": 1.0},
+    agency_after={"operator": 1.0, "reviewer": 1.0},
+    audit=AuditEvidence(I(0.95), I(0.95), I(0.90)),
+    repair=RepairEvidence(True, I(0.15), I(0.10), ("candidate", "rollback", "safe")),
+    reversibility=ReversibilityEvidence(I(0.95), I(0.9), I(0.95)),
+    authorization=AuthorizationEvidence(I(0.9), I(0.9), I(0.9)),
+    deception=DeceptionEvidence(I(0.0), I(0.0), I(0.0), I(0.0)),
+    task_utility=I(0.70),
+)
+
+decision = governor.choose([unsafe, safe])
+print(decision.status)          # EXECUTE
+print(decision.selected_action) # sandboxed-canary</pre><div class="signal"><strong>Closure lesson:</strong> task utility is subordinate to admissibility.</div></details>
+
+<details class="card full"><summary><strong>2. High utility cannot compensate for a missing repair path</strong></summary><p>Even maximal task utility does not make an action admissible when bounded repair is absent.</p><pre class="formula">bad = ActionEvidence(
+    action_id="high-reward-no-repair",
+    catastrophic_risk=I(0.02),
+    agency_before={"human": 1.0, "agent": 1.0},
+    agency_after={"human": 1.0, "agent": 1.0},
+    audit=AuditEvidence(I(0.9), I(0.9), I(0.9)),
+    repair=RepairEvidence(False, I(1.0), I(1.0)),
+    reversibility=ReversibilityEvidence(I(0.9), I(0.9), I(0.9)),
+    authorization=AuthorizationEvidence(I(0.9), I(0.9), I(0.9)),
+    deception=DeceptionEvidence(I(0.0), I(0.0), I(0.0), I(0.0)),
+    task_utility=I(1.0),
+)
+
+good = ActionEvidence(
+    action_id="lower-reward-with-repair",
+    catastrophic_risk=I(0.01),
+    agency_before={"human": 1.0, "agent": 1.0},
+    agency_after={"human": 1.0, "agent": 1.0},
+    audit=AuditEvidence(I(0.9), I(0.9), I(0.9)),
+    repair=RepairEvidence(True, I(0.2), I(0.15)),
+    reversibility=ReversibilityEvidence(I(0.9), I(0.9), I(0.9)),
+    authorization=AuthorizationEvidence(I(0.9), I(0.9), I(0.9)),
+    deception=DeceptionEvidence(I(0.0), I(0.0), I(0.0), I(0.0)),
+    task_utility=I(0.4),
+)
+
+d = governor.choose([bad, good])
+# selected_action == "lower-reward-with-repair"</pre></details>
+
+<details class="card full"><summary><strong>3. Blind obedience is not enough</strong></summary><p>An action can be fully authorized and still fail because it relies on concealment or covert persistence.</p><pre class="formula">covert = ActionEvidence(
+    action_id="authorized-but-covert",
+    catastrophic_risk=I(0.01),
+    agency_before={"human": 1.0},
+    agency_after={"human": 1.0},
+    audit=AuditEvidence(I(0.9), I(0.9), I(0.9)),
+    repair=RepairEvidence(True, I(0.1), I(0.1)),
+    reversibility=ReversibilityEvidence(I(0.9), I(0.9), I(0.9)),
+    authorization=AuthorizationEvidence(I(1.0), I(1.0), I(1.0)),
+    deception=DeceptionEvidence(I(0.9), I(0.8), I(0.0), I(0.0)),
+    task_utility=I(1.0),
+)
+
+d = governor.choose([covert])
+# status == "REFUSE_OR_ESCALATE"
+# reason_codes includes "REFUSE_COVERT_ACTION"</pre></details>
+
+<details class="card full"><summary><strong>4. Loss of plurality of agency</strong></summary><p>Closure Ethics evaluates individual agency retention and effective plurality. Concentrating almost all practical capacity in one actor triggers <span class="mono">AGENCY_LOSS</span>.</p><pre class="formula">centralize = ActionEvidence(
+    action_id="centralize-power",
+    catastrophic_risk=I(0.01),
+    agency_before={"human": 1.0, "agent": 1.0, "reviewer": 1.0},
+    agency_after={"human": 0.1, "agent": 1.0, "reviewer": 0.05},
+    audit=AuditEvidence(I(0.9), I(0.9), I(0.9)),
+    repair=RepairEvidence(True, I(0.1), I(0.1)),
+    reversibility=ReversibilityEvidence(I(0.9), I(0.9), I(0.9)),
+    authorization=AuthorizationEvidence(I(0.9), I(0.9), I(0.9)),
+    deception=DeceptionEvidence(I(0.0), I(0.0), I(0.0), I(0.0)),
+    task_utility=I(0.8),
+)
+
+ev = evaluate(centralize, DEMO_POLICY)
+print(ev.violations)  # ('AGENCY_LOSS',)</pre></details>
+
+<details class="card full"><summary><strong>5. Multi-agent composition: locally admissible, jointly inadmissible</strong></summary><p>Two actions may each pass in isolation while their composed transition destroys auditability. The reference governor therefore re-evaluates the joint action rather than averaging local scores.</p><pre class="formula">local1 = ActionEvidence(
+    action_id="agent-A-read",
+    catastrophic_risk=I(0.01),
+    agency_before={"A": 1.0, "B": 1.0},
+    agency_after={"A": 1.0, "B": 1.0},
+    audit=AuditEvidence(I(0.9), I(0.9), I(0.9)),
+    repair=RepairEvidence(True, I(0.1), I(0.1)),
+    reversibility=ReversibilityEvidence(I(0.9), I(0.9), I(0.9)),
+    authorization=AuthorizationEvidence(I(0.9), I(0.9), I(0.9)),
+    deception=DeceptionEvidence(I(0.0), I(0.0), I(0.0), I(0.0)),
+    task_utility=I(0.6),
+)
+
+local2 = ActionEvidence(
+    action_id="agent-B-write",
+    catastrophic_risk=I(0.01),
+    agency_before={"A": 1.0, "B": 1.0},
+    agency_after={"A": 1.0, "B": 1.0},
+    audit=AuditEvidence(I(0.9), I(0.9), I(0.9)),
+    repair=RepairEvidence(True, I(0.1), I(0.1)),
+    reversibility=ReversibilityEvidence(I(0.9), I(0.9), I(0.9)),
+    authorization=AuthorizationEvidence(I(0.9), I(0.9), I(0.9)),
+    deception=DeceptionEvidence(I(0.0), I(0.0), I(0.0), I(0.0)),
+    task_utility=I(0.65),
+)
+
+joint = ActionEvidence(
+    action_id="A-and-B-coordinated",
+    catastrophic_risk=I(0.01),
+    agency_before={"A": 1.0, "B": 1.0},
+    agency_after={"A": 1.0, "B": 1.0},
+    audit=AuditEvidence(I(0.2), I(0.3), I(0.1)),
+    repair=RepairEvidence(True, I(0.1), I(0.1)),
+    reversibility=ReversibilityEvidence(I(0.9), I(0.9), I(0.9)),
+    authorization=AuthorizationEvidence(I(0.9), I(0.9), I(0.9)),
+    deception=DeceptionEvidence(I(0.0), I(0.0), I(0.0), I(0.0)),
+    task_utility=I(0.85),
+)
+
+print(evaluate(local1, DEMO_POLICY).admissible)          # True
+print(evaluate(local2, DEMO_POLICY).admissible)          # True
+print(governor.evaluate_joint_action(joint).admissible)  # False</pre><div class="signal"><strong>Closure lesson:</strong> admissibility is not automatically closed under composition.</div></details>
+
+<details class="card full"><summary><strong>6. Bounded repair-path search using Pareto labels</strong></summary><p>The search must satisfy both repair cost and repair risk budgets. A cheap but over-risky route is rejected in favor of a more expensive path that remains inside both bounds.</p><pre class="formula">graph = {
+    "x": [
+        RepairEdge("a", cost=1, risk=7),
+        RepairEdge("b", cost=4, risk=1),
+    ],
+    "a": [RepairEdge("safe", cost=1, risk=1)],
+    "b": [RepairEdge("safe", cost=1, risk=1)],
+}
+
+cert = bounded_repair_search(
+    graph,
+    start="x",
+    safe_states={"safe"},
+    max_cost=6,
+    max_risk=3,
+)
+
+print(cert.exists)  # True
+print(cert.path)    # ('x', 'b', 'safe')</pre></details>
+
+<details class="card full"><summary><strong>7. Recovery mode</strong></summary><p>If all primary candidates fail, the same admissibility rule is applied to explicit recovery candidates. A reversible sandbox-and-log action can therefore be selected instead of an unsafe primary action.</p><pre class="formula">recovery = ActionEvidence(
+    action_id="sandbox-and-log",
+    catastrophic_risk=I(0.005),
+    agency_before={"human": 1.0},
+    agency_after={"human": 1.0},
+    audit=AuditEvidence(I(0.95), I(0.95), I(0.95)),
+    repair=RepairEvidence(True, I(0.05), I(0.05)),
+    reversibility=ReversibilityEvidence(I(0.95), I(0.95), I(0.95)),
+    authorization=AuthorizationEvidence(I(0.8), I(0.8), I(0.8)),
+    deception=DeceptionEvidence(I(0.0), I(0.0), I(0.0), I(0.0)),
+    task_utility=I(0.3),
+)
+
+d = governor.choose(
+    candidates=[unsafe],
+    recovery_candidates=[recovery],
+)
+# status == "EXECUTE_RECOVERY"
+# selected_action == "sandbox-and-log"</pre></details>
+</div></div></section>
+<section class="section"><div class="wrap prose"><span class="eyebrow">Agent integration</span><h2>Typical planner → governor → executor pattern</h2><pre class="formula"># 1. Planner proposes candidates
+candidates = planner.propose(state)
+
+# 2. Domain adapters produce auditable ActionEvidence
+evidences = [domain_adapter.to_evidence(c, state) for c in candidates]
+
+# 3. Closure Ethics Governor decides
+decision = governor.choose(evidences, recovery_candidates=recovery_evidences)
+
+# 4. Execute only the selected admissible action
+if decision.status in ("EXECUTE", "EXECUTE_RECOVERY"):
+    executor.run(decision.selected_action)
+else:
+    escalation_queue.submit(decision.to_json())</pre><p>In a production integration, <span class="mono">selected_action</span> is the action identifier. The executor should resolve that identifier against the candidate registry rather than treating arbitrary text as executable instructions.</p><div class="signal"><strong>Design boundary:</strong> the governor decides over structured evidence; domain adapters remain responsible for grounding real-world harm, authorization, deception and other evidence fields.</div></div></section>
+</main>
+<footer class="footer"><div class="wrap footer-row"><span>Project Möbia and Marek Zajda · Closure Ethics research project</span><span><a href="implementation.html">Implementation</a> · <a href="https://raw.githubusercontent.com/marekzajda/closure-ethics-for-autonomous-ai-agents/main/09-implementation/practical_examples.py">Runnable examples ↗</a></span></div></footer>
+</body></html>
