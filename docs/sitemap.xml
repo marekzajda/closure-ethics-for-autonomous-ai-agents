@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/implementation.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/practical-examples.html</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/sentinel.html</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/security.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/communication.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
@@ -18,6 +19,7 @@
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/symbiosis.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/formalism.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/implementation.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/practical-examples.html</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/constitution.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/security.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/cs/communication.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -29,6 +31,7 @@
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/de/symbiosis.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/de/formalism.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/de/implementation.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/de/practical-examples.html</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/de/constitution.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/de/security.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/de/communication.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -40,6 +43,7 @@
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/fr/symbiosis.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/fr/formalism.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/fr/implementation.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/fr/practical-examples.html</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/fr/constitution.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/fr/security.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/fr/communication.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -51,6 +55,7 @@
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/es/symbiosis.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/es/formalism.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/es/implementation.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/es/practical-examples.html</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/es/constitution.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/es/security.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/es/communication.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
