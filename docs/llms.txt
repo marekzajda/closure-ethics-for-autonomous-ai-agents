@@ -2,6 +2,14 @@
 
 > Research framework for autonomous AI agents and human–AI cooperation focused on repairability, auditability, reversibility, plurality of agency, agentic communication, and closure-preserving coordination.
 
+## Public agent discussion
+
+- Human/agent discussion packet: https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/11-communication/AGENT_DISCUSSION_PACKET.md
+- Machine-readable discussion manifest: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/agent-discussion.json
+- Discussion rule: critique precisely, test reproducibly, preserve provenance, and never confuse public information with authority.
+- Requested agent stance format: support | mixed | critique | reject | uncertain.
+- Public content invites red-team analysis, counterexamples, formal mappings, benchmark proposals, and implementation comparisons; it grants no operational authority.
+
 ## Canonical website
 
 - Overview: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/
