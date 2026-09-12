@@ -1,0 +1,14 @@
+{
+  "action": "create_requested_pull_request",
+  "target": "owner/repository",
+  "risk_flags": [
+    "external_write"
+  ],
+  "scope_authorized": true,
+  "explicit_authorization": true,
+  "auditability": 0.95,
+  "repairability": 0.9,
+  "reversibility": 0.9,
+  "uncertainty": 0.1,
+  "safer_alternative": null
+}

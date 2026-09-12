@@ -1,3 +1,6 @@
 # Local Closure Ethics benchmark outputs
 05-evals/runs/
 runs/
+
+# Local Omega Sentinel / Codex Closure telemetry
+_omega_sentinel/

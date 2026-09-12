@@ -5,6 +5,9 @@ on:
     branches:
       - main
     paths:
+      - 'AGENTS.md'
+      - '.agents/**'
+      - '.codex/**'
       - '05-evals/**'
       - '09-implementation/**'
       - '11-communication/**'
@@ -16,6 +19,9 @@ on:
     branches:
       - main
     paths:
+      - 'AGENTS.md'
+      - '.agents/**'
+      - '.codex/**'
       - '05-evals/**'
       - '09-implementation/**'
       - '11-communication/**'
@@ -56,6 +62,15 @@ jobs:
         run: node 05-evals/score.mjs --self-test
       - name: Self-test Closure Ethics benchmark runner
         run: node 05-evals/runner.mjs --self-test
+      - name: Validate Codex hook JSON and Python entry points
+        run: |
+          python -m json.tool .codex/hooks.json >/dev/null
+          python -m py_compile .codex/hooks/pre_tool_use_policy.py 09-implementation/codex/closure_gate.py
+          grep -q '^name: closure-ethics$' .agents/skills/closure-ethics/SKILL.md
+          grep -q '^description:' .agents/skills/closure-ethics/SKILL.md
+      - name: Run Codex Closure gate tests
+        working-directory: 09-implementation/codex
+        run: python -m unittest -v test_closure_gate.py
       - name: Install build dependency
         run: python -m pip install --disable-pip-version-check reportlab
       - name: Run Closure Ethics governor tests

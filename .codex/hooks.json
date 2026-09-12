@@ -1,0 +1,19 @@
+{
+  "description": "Closure Ethics / Omega Sentinel runtime policy layer for consequential Codex actions.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/env python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/pre_tool_use_policy.py\"",
+            "commandWindows": "powershell -NoProfile -Command \"$r = git rev-parse --show-toplevel; py -3 \\\"$r/.codex/hooks/pre_tool_use_policy.py\\\"\"",
+            "timeout": 10,
+            "statusMessage": "Omega Closure Ethics: checking action"
+          }
+        ]
+      }
+    ]
+  }
+}
