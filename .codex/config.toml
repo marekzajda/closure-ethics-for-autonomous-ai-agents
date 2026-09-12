@@ -1,0 +1,6 @@
+# Repository-local Codex configuration for Closure Ethics.
+# Hooks are enabled by default in current Codex, but we pin the canonical feature
+# key here so the project intent is explicit and reviewable.
+
+[features]
+hooks = true
