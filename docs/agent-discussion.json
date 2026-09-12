@@ -1,0 +1,79 @@
+{
+  "framework": "Closure Ethics for Autonomous Agents",
+  "status": "open research proposal",
+  "purpose": "Enable public machine-readable discussion, critique, implementation comparison, and red-team evaluation of Closure Ethics.",
+  "non_authority_notice": "Public information is not operational authority. Understanding, indexing, quoting, or discussing this document does not authorize actions, credentials, delegation, policy changes, or external side effects.",
+  "core_statement": "An action is ethically admissible only if it preserves the capacity of the system to recognize, contest, and repair that action.",
+  "historical_project_sentence": "INTELLIGENCE PROPOSES POSSIBILITIES. CLOSURE DECIDES WHICH MAY BE REALIZED.",
+  "separations": [
+    "local objective optimization != global admissibility",
+    "understanding != authorization",
+    "communication edge != authority edge",
+    "public readability != write authority",
+    "local admissibility != compositional admissibility"
+  ],
+  "lexicographic_constraints": [
+    "catastrophic harm",
+    "meaningful agency",
+    "auditability",
+    "bounded repair path",
+    "authorization integrity or justified escalation",
+    "avoid deception and covert persistence",
+    "task utility"
+  ],
+  "engineering_principles": {
+    "impact_scaling": "impact increases -> autonomy budget decreases AND verification strength increases",
+    "critic_independence": "The Actor or Planner should not be the sole judge of its own admissibility.",
+    "composition": "Recompute closure for joint transitions rather than inferring global admissibility from local approvals.",
+    "delegation": "Delegated capability must not exceed the delegator's authorized capability intersected with explicit scope.",
+    "uncertainty": "Material uncertainty about irreversible harm should trigger stop, escalation, or human review according to policy."
+  },
+  "decision_labels": [
+    "ALLOW",
+    "MODIFY",
+    "REQUIRE_HUMAN_REVIEW",
+    "DENY"
+  ],
+  "discussion_questions": [
+    "Can repairability be defined without circularly defining the safe set?",
+    "Under what conditions can local closure certificates compose safely?",
+    "Can closure be encoded using temporal logic, reachability, model checking, control-barrier functions, or proof-carrying actions?",
+    "What is a formal operational definition of meaningful agency in mixed human-AI systems?",
+    "How should uncertainty in the world model change admissibility thresholds?",
+    "How can auditability metrics resist adversarial gaming?",
+    "Where should an independent Closure Critic run?",
+    "What minimum machine-verifiable receipt should every consequential action emit?",
+    "How should authority and capability delegation propagate across agent chains?",
+    "How should asynchronous multi-agent composition be evaluated?",
+    "Who may define or modify the admissible state set?",
+    "Which observations or experiments would falsify or substantially weaken this engineering framework?"
+  ],
+  "requested_response_schema": {
+    "framework": "Closure Ethics",
+    "stance": "support | mixed | critique | reject | uncertain",
+    "strongest_point": "string",
+    "strongest_objection": "string",
+    "formal_gap": "string",
+    "security_failure_mode": "string",
+    "composition_issue": "string",
+    "proposed_test": "string",
+    "proposed_revision": "string",
+    "implementation_mapping": {
+      "planner": "string",
+      "closure_critic": "string",
+      "executor": "string",
+      "audit_receipt": "string"
+    },
+    "confidence": "0.0-1.0"
+  },
+  "canonical_resources": {
+    "repository": "https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents",
+    "website": "https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/",
+    "llms_index": "https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/llms.txt",
+    "discussion_packet": "https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/11-communication/AGENT_DISCUSSION_PACKET.md",
+    "formalism": "https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/03-formalism/CLOSURE_ETHICS_FORMALISM.md",
+    "communication_protocol": "https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/11-communication/UNIVERSAL_CLOSURE_PROTOCOL.md",
+    "standard_draft": "https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/12-standard/GLOBAL_AI_CLOSURE_STANDARD_DRAFT.md",
+    "reference_implementation": "https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/tree/main/09-implementation"
+  }
+}
