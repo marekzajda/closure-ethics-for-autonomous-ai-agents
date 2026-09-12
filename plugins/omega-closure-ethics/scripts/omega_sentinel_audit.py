@@ -16,6 +16,7 @@ from typing import Any, Mapping
 
 AUDIT_FILE = "closure_audit.ndjson"
 MODE = "observe_only"
+ZERO_HASH = "0" * 64
 
 
 def _utc_now() -> str:
@@ -26,29 +27,53 @@ def _canonical_bytes(obj: Mapping[str, Any]) -> bytes:
     return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
+def _last_nonempty_line(path: Path) -> bytes | None:
+    """Return the last non-empty line without loading an unbounded audit log."""
+    with path.open("rb") as handle:
+        handle.seek(0, os.SEEK_END)
+        end = handle.tell()
+        if end <= 0:
+            return None
+
+        # Skip trailing newline / whitespace so a normal newline-terminated NDJSON
+        # file does not appear to have an empty final record.
+        pos = end - 1
+        while pos >= 0:
+            handle.seek(pos)
+            byte = handle.read(1)
+            if byte not in (b"\n", b"\r", b" ", b"\t"):
+                break
+            pos -= 1
+        if pos < 0:
+            return None
+
+        record_end = pos + 1
+        while pos >= 0:
+            handle.seek(pos)
+            if handle.read(1) == b"\n":
+                pos += 1
+                break
+            pos -= 1
+        record_start = max(0, pos)
+        handle.seek(record_start)
+        line = handle.read(record_end - record_start).strip()
+        return line or None
+
+
 def _last_hash(path: Path) -> str:
     if not path.exists() or path.stat().st_size == 0:
-        return "0" * 64
+        return ZERO_HASH
     try:
-        with path.open("rb") as handle:
-            handle.seek(0, os.SEEK_END)
-            pos = handle.tell() - 1
-            while pos > 0:
-                handle.seek(pos)
-                if handle.read(1) == b"\n":
-                    break
-                pos -= 1
-            if pos > 0:
-                handle.seek(pos + 1)
-            else:
-                handle.seek(0)
-            line = handle.readline().decode("utf-8").strip()
+        line = _last_nonempty_line(path)
         if not line:
-            return "0" * 64
-        previous = json.loads(line)
-        return str(previous.get("receipt_sha256", "0" * 64))
+            return ZERO_HASH
+        previous = json.loads(line.decode("utf-8"))
+        digest = str(previous.get("receipt_sha256", ZERO_HASH))
+        if len(digest) != 64 or any(c not in "0123456789abcdefABCDEF" for c in digest):
+            return ZERO_HASH
+        return digest.lower()
     except (OSError, UnicodeDecodeError, json.JSONDecodeError):
-        return "0" * 64
+        return ZERO_HASH
 
 
 def append_receipt(data_root: str | Path, receipt: Mapping[str, Any]) -> Path:
