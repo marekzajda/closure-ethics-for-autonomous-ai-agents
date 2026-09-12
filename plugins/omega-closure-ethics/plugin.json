@@ -1,0 +1,44 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "omega-closure-ethics",
+  "version": "0.1.0",
+  "description": "A portable Closure Ethics guardrail for ChatGPT and Codex that adds a reusable decision skill, pre-action review hooks, and Omega Sentinel-style local audit receipts.",
+  "author": {
+    "name": "Marek Zajda / Project Möbia",
+    "url": "https://github.com/marekzajda"
+  },
+  "homepage": "https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/",
+  "repository": "https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents",
+  "license": "MIT",
+  "keywords": [
+    "ai-safety",
+    "agent-governance",
+    "codex",
+    "closure-ethics",
+    "auditability",
+    "reversibility",
+    "human-review",
+    "omega-sentinel"
+  ],
+  "extensions": {
+    "com.openai": {
+      "hooks": "./hooks/hooks.json",
+      "interface": {
+        "displayName": "Omega Closure Ethics",
+        "shortDescription": "Closure-aware review and audit for consequential agent actions.",
+        "longDescription": "Adds a portable Closure Ethics workflow to ChatGPT and Codex. The plugin separates task optimization from admissibility review, flags consequential actions for human review, hard-blocks recognizable guardrail/audit tampering patterns, and writes local Omega Sentinel-style decision receipts when plugin hooks are supported and trusted.",
+        "developerName": "Marek Zajda / Project Möbia",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "websiteURL": "https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/",
+        "privacyPolicyURL": "https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/plugins/omega-closure-ethics/PRIVACY.md",
+        "termsOfServiceURL": "https://github.com/marekzajda/closure-ethics-for-autonomous-ai-agents/blob/main/plugins/omega-closure-ethics/TERMS.md",
+        "defaultPrompt": [
+          "Use Omega Closure Ethics to review this plan before taking consequential actions.",
+          "Evaluate this operation for authorization, auditability, repairability, reversibility, and uncertainty.",
+          "Use the Closure Critic to identify whether this action should be allowed, modified, escalated for human review, or denied."
+        ]
+      }
+    }
+  }
+}
