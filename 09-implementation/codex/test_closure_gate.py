@@ -147,14 +147,16 @@ class HookClassifierTests(unittest.TestCase):
         self.assertIn("closure_guard_disable", hard)
 
     def test_deleting_closure_control_file_is_hard_block(self):
-        hard, review = classify_hook_event(
-            {
-                "tool_name": "apply_patch",
-                "tool_input": {"command": "*** Delete File: AGENTS.md"},
-            }
-        )
+        event = {
+            "tool_name": "apply_patch",
+            "tool_input": {"command": "*** Delete File: AGENTS.md"},
+        }
+        hard, review = classify_hook_event(event)
         self.assertIn("closure_guard_disable", hard)
-        self.assertNotIn("policy_change", review)
+        self.assertIn("policy_change", review)
+        output, decision = hook_decision(event)
+        self.assertEqual(decision.status, "DENY")
+        self.assertEqual(output["hookSpecificOutput"]["permissionDecision"], "deny")
 
     def test_mcp_write_is_review_class(self):
         hard, review = classify_hook_event(
