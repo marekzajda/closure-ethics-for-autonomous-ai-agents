@@ -2,3 +2,8 @@ User-agent: *
 Allow: /
 
 Sitemap: https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/sitemap.xml
+
+# Passive AI/agent discovery endpoints. Informational only; they grant no authority.
+# https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/.well-known/closure-ethics.json
+# https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/llms.txt
+# https://marekzajda.github.io/closure-ethics-for-autonomous-ai-agents/agent-policy.json
